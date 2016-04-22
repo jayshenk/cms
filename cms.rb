@@ -2,8 +2,18 @@ require "sinatra"
 require "sinatra/reloader"
 require "tilt/erubis"
 
-get "/" do
-  @files = Dir.glob("data/*").map { |file| File.basename(file) }.sort
+root = File.expand_path("..", __FILE__)
 
-  erb :list
+get "/" do
+  @files = Dir.glob(root + "/data/*").map do |path|
+    File.basename(path)
+  end
+  erb :index
+end
+
+get "/:filename" do
+  file_path = root + "/data/" + params[:filename]
+
+  headers["Content-Type"] = "text/plain"
+  File.read(file_path)
 end
