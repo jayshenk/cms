@@ -32,12 +32,40 @@ def load_file_content(path)
   end
 end
 
+def error_for_filename(name)
+  if !(3..50).cover? name.size
+    "Filename must be between 3 and 50 characters."
+  end
+end
+
 get "/" do
   pattern = File.join(data_path, "*")
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end  
   erb :index, layout: :layout
+end
+
+get "/new" do
+  erb :new, layout: :layout
+end
+
+post "/create" do
+  filename = params[:filename].strip
+
+  error = error_for_filename(filename)
+  if error
+    session[:message] = error
+    status 422
+    erb :new, layout: :layout
+  else
+    file_path = File.join(data_path, filename)
+
+    File.write(file_path, "")
+    session[:message] = "#{filename} was created."
+    
+    redirect "/"
+  end
 end
 
 get "/:filename" do
@@ -68,3 +96,4 @@ post "/:filename" do
   session[:message] = "#{params[:filename]} has been updated."
   redirect "/"
 end
+
