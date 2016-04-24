@@ -28,7 +28,7 @@ def load_file_content(path)
     headers["Content-Type"] = "text/plain"
     content
   when ".md"
-    render_markdown(content)
+    erb render_markdown(content)
   end
 end
 
@@ -37,7 +37,7 @@ get "/" do
   @files = Dir.glob(pattern).map do |path|
     File.basename(path)
   end  
-  erb :index
+  erb :index, layout: :layout
 end
 
 get "/:filename" do
@@ -57,7 +57,7 @@ get "/:filename/edit" do
   @filename = params[:filename]
   @content = File.read(file_path)
 
-  erb :edit
+  erb :edit, layout: :layout
 end
 
 post "/:filename" do
