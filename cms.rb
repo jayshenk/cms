@@ -38,6 +38,17 @@ def error_for_filename(name)
   end
 end
 
+def user_signed_in?
+  session.key?(:username)
+end
+
+def require_signed_in_user
+  unless user_signed_in?
+    session[:message] = "You must be signed in to do that."
+    redirect "/"
+  end
+end
+
 get "/" do
   pattern = File.join(data_path, "*")
   @files = Dir.glob(pattern).map do |path|
@@ -47,10 +58,14 @@ get "/" do
 end
 
 get "/new" do
+  require_signed_in_user
+
   erb :new, layout: :layout
 end
 
 post "/create" do
+  require_signed_in_user
+
   filename = params[:filename].strip
 
   error = error_for_filename(filename)
@@ -80,6 +95,8 @@ get "/:filename" do
 end
 
 get "/:filename/edit" do
+  require_signed_in_user
+
   file_path = File.join(data_path, params[:filename])
 
   @filename = params[:filename]
@@ -89,6 +106,8 @@ get "/:filename/edit" do
 end
 
 post "/:filename" do
+  require_signed_in_user
+
   file_path = File.join(data_path, params[:filename])
 
   File.write(file_path, params[:content])
@@ -98,6 +117,8 @@ post "/:filename" do
 end
 
 post "/:filename/delete" do
+  require_signed_in_user
+
   file_path = File.join(data_path, params[:filename])
 
   File.delete(file_path)
